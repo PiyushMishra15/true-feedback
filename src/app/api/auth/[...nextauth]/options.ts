@@ -5,6 +5,7 @@ import UserModel from '@/app/model/user';
 import { NextAuthOptions } from 'next-auth';
 
 
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -14,30 +15,41 @@ export const authOptions: NextAuthOptions = {
         username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials:any): Promise<any> {
+      async authorize(credentials): Promise<any> {
+        // Ensure credentials are defined before accessing
+        if (!credentials) {
+          throw new Error('Missing credentials');
+        }
+        console.log(credentials)
+        const {username,password} = credentials;
+
         await dbConnect();
         try {
+          // Use either username or email for finding the user
           const user = await UserModel.findOne({
-            $or: [{ email: credentials.identifier }, { username: credentials.identifier }],
+            $or: [{ email: username }, { username:username }],
           });
 
           if (!user) {
-            throw new Error('No user found with this email');
+            throw new Error('No user found with this email or username');
           }
 
           if (!user.isVerified) {
             throw new Error('Please verify your account before login');
           }
 
-          const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+          const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
           if (isPasswordCorrect) {
             return user;
           } else {
-            throw new Error('Incorrect Password');
+            throw new Error('Incorrect password');
           }
-        } catch (error: any) {
-          throw new Error(error);
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error('An unknown error occurred');
         }
       },
     }),

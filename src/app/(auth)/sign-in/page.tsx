@@ -27,7 +27,7 @@ export default function SignInForm() {
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
     const result = await signIn('credentials', {
       redirect: false,
-      identifier: data.identifier,
+      username: data.identifier,
       password: data.password,
     });
   

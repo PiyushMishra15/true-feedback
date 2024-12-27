@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import {authOptions} from "../auth/[...nextauth]/options"
-
+import { Session } from "next-auth";
 import dbConnect from "@/app/lib/dbConnect";
 import UserModel from "@/app/model/user";
 
@@ -8,15 +8,14 @@ import { User } from "next-auth";
 
 export async function POST(request:Request){
     await dbConnect()
-    const session=await getServerSession(authOptions)
+    const session : Session | null =await getServerSession(authOptions)
     const user:User= session?.user
+   
 
-    if(!session || !session.user){
+    if(!session  || !session.user){
         return  Response.json({
             success:false,
-            message:"Not Authenticated"
-        },{
-            status:401 })
+            message:"Not Authenticated"},{status:401 })
     }
 
     const userId=user._id
@@ -42,7 +41,7 @@ export async function POST(request:Request){
     
     }
     catch(error){
-        console.log("failed to update user status to accept messages")
+        console.log("failed to update user status to accept messages",error)
         return Response.json({
             success:false,
             message:"Failed to update user status to accept messages"
@@ -59,7 +58,7 @@ export async function POST(request:Request){
 
 
 
-export async function GET(request:Request){
+export async function GET(){
     await dbConnect()
     const session=await getServerSession(authOptions)
     const user:User= session?.user
@@ -94,7 +93,7 @@ export async function GET(request:Request){
     
     }
     catch(error){
-        console.log("failed to get user status to accept messages")
+        console.log("failed to get user status to accept messages",error)
         return Response.json({
             success:false,
             message:"Failed to get user status to accept messages"

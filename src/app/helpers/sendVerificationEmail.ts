@@ -15,7 +15,7 @@ export async function sendVerificationEmail(
             const resend = new Resend("re_bx1uZiEn_JrHoiLztAVDHwyvn6Lwgz8i2");  
        
 
-            const { data, error } = await resend.emails.send({
+            const { data} = await resend.emails.send({
                 from: 'Acme <onboarding@resend.dev>',
                 to: email,
                 subject: 'Mystery message | Verification code',
@@ -25,7 +25,7 @@ export async function sendVerificationEmail(
 
 
 
-
+            console.log(data)
             return {success:true,message:'Verification email send successfully '}    
         }
         catch(emailError){

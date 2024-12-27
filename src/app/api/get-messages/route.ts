@@ -9,7 +9,7 @@ import { User } from "next-auth";
 
 
 
-export async function GET(req:Request){
+export async function GET(){
     await dbConnect()
  
     const session=await getServerSession(authOptions)
@@ -53,6 +53,7 @@ export async function GET(req:Request){
 
 
     }catch(error){
+        console.log(error)
         return Response.json({
             success:false,
             message:"error in getting messages ",

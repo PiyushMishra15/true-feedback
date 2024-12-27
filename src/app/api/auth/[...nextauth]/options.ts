@@ -4,6 +4,7 @@ import dbConnect from '@/app/lib/dbConnect';
 import UserModel from '@/app/model/user';
 import { NextAuthOptions } from 'next-auth';
 
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -13,7 +14,7 @@ export const authOptions: NextAuthOptions = {
         username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials: any): Promise<any> {
+      async authorize(credentials:any): Promise<any> {
         await dbConnect();
         try {
           const user = await UserModel.findOne({

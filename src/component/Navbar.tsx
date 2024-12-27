@@ -3,12 +3,19 @@
 import React from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation';
+
 import { User } from "next-auth";
 
 function Navbar() {
+  const router=useRouter()
   const { data: session } = useSession();
   const user: User = session?.user;
+
+  const handleLogout = async () => {
+    await signOut(); // This signs out the user
+    router.push('/'); // Redirect to the homepage
+  };
 
   return (
     <>
@@ -30,11 +37,11 @@ function Navbar() {
                   Welcome, {user?.username || user?.email}
                 </span>
                 <button
-                  className="bg-red-500 text-black px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
-                  onClick={() => signOut()}
-                >
-                  Logout
-                </button>
+      className="bg-red-500 text-black px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
+      onClick={handleLogout}
+    >
+      Logout
+    </button>
               </>
             ) : (
               <Link

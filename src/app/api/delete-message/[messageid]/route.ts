@@ -49,6 +49,7 @@ export async function DELETE(req:Request,{params}:{params:{messageid:ObjectId}})
    
 
     }catch(error){
+        console.log(error)
         return Response.json({
             success:false,
             message:"error in deleting messages ",

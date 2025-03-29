@@ -1,18 +1,18 @@
-"use client"
-import React, { useCallback, useState, useEffect } from 'react';
-import { Message } from '@/app/model/user';
-import { useToast } from '@/hooks/use-toast';
-import { AcceptMessageSchema } from '@/app/schemas/acceptMessageSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useSession } from 'next-auth/react';
-import axios, { AxiosError } from 'axios';
-import { ApiResponse } from '@/types/ApiResponse';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { MessageCard } from '@/component/MessageCard';
-import { Separator } from '@/components/ui/separator';
-import { Loader2, RefreshCcw } from 'lucide-react';
+"use client";
+import React, { useCallback, useState, useEffect } from "react";
+import { Message } from "@/app/model/user";
+import { useToast } from "@/hooks/use-toast";
+import { AcceptMessageSchema } from "@/app/schemas/acceptMessageSchema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
+import axios, { AxiosError } from "axios";
+import { ApiResponse } from "@/types/ApiResponse";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { MessageCard } from "@/component/MessageCard";
+import { Separator } from "@/components/ui/separator";
+import { Loader2, RefreshCcw } from "lucide-react";
 import { ObjectId } from "mongodb";
 
 export default function Page() {
@@ -24,7 +24,7 @@ export default function Page() {
   const { data: session } = useSession();
   const form = useForm({ resolver: zodResolver(AcceptMessageSchema) });
   const { register, watch, setValue } = form;
-  const acceptMessages = watch('acceptMessages');
+  const acceptMessages = watch("acceptMessages");
 
   const handleDeleteMessage = (messageId: ObjectId) => {
     setMessage(message.filter((message) => message._id !== messageId));
@@ -33,8 +33,8 @@ export default function Page() {
   const fetchAcceptMessage = useCallback(async () => {
     setIsSwitchLoading(true);
     try {
-      const response = await axios.get<ApiResponse>('/api/accept-messages');
-      setValue('acceptMessages', response.data.isAcceptingMessages);
+      const response = await axios.get<ApiResponse>("/api/accept-messages");
+      setValue("acceptMessages", response.data.isAcceptingMessages);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
@@ -45,30 +45,35 @@ export default function Page() {
     } finally {
       setIsSwitchLoading(false);
     }
-  }, [setValue]);
+  }, [setValue, toast]);
 
-  const fetchMessages = useCallback(async (refresh: boolean = false) => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get<ApiResponse>('/api/get-messages');
-      setMessage(response.data.messages || []);
-      if (refresh) {
+  const fetchMessages = useCallback(
+    async (refresh: boolean = false) => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get<ApiResponse>("/api/get-messages");
+        setMessage(response.data.messages || []);
+        if (refresh) {
+          toast({
+            title: "Refreshed Messages",
+            description: "Showing latest messages",
+          });
+        }
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiResponse>;
         toast({
-          title: "Refreshed Messages",
-          description: "Showing latest messages",
+          title: "Error",
+          description:
+            axiosError.response?.data.message ||
+            "Failed to fetch message settings",
+          variant: "destructive",
         });
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
-      toast({
-        title: "Error",
-        description: axiosError.response?.data.message || "Failed to fetch message settings",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [setIsLoading]);
+    },
+    [setIsLoading, toast]
+  );
 
   useEffect(() => {
     if (!session || !session.user) return;
@@ -78,33 +83,35 @@ export default function Page() {
 
   const handleSwitchChange = async () => {
     try {
-      const response = await axios.post<ApiResponse>('/api/accept-messages', {
+      const response = await axios.post<ApiResponse>("/api/accept-messages", {
         acceptMessages: !acceptMessages,
       });
-      setValue('acceptMessages', !acceptMessages);
+      setValue("acceptMessages", !acceptMessages);
       toast({
         title: response.data.message,
-        variant: 'default',
+        variant: "default",
       });
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
         title: "Error",
-        description: axiosError.response?.data.message || "Failed to update message settings",
+        description:
+          axiosError.response?.data.message ||
+          "Failed to update message settings",
         variant: "destructive",
       });
     }
   };
 
-  const { username } = session?.user || '';
+  const { username } = session?.user || "";
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const ProfileUrl = `${baseUrl}/u/${username}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(ProfileUrl);
     toast({
-      title: 'Profile URL copied to clipboard',
-      description: 'Profile url has been copied to clipboard',
+      title: "Profile URL copied to clipboard",
+      description: "Profile url has been copied to clipboard",
     });
   };
 
@@ -129,12 +136,14 @@ export default function Page() {
 
       <div className="mb-4">
         <Switch
-          {...register('acceptMessages')}
+          {...register("acceptMessages")}
           checked={acceptMessages}
           onCheckedChange={handleSwitchChange}
           disabled={isSwitchLoading}
         />
-        <span className="ml-2">Accept Messages: {acceptMessages ? 'On' : 'Off'}</span>
+        <span className="ml-2">
+          Accept Messages: {acceptMessages ? "On" : "Off"}
+        </span>
       </div>
       <Separator />
 
@@ -162,7 +171,10 @@ export default function Page() {
         ) : message.length > 0 ? (
           message.map((message, index) => (
             <div key={index}>
-              <MessageCard message={message} onMessageDelete={handleDeleteMessage} />
+              <MessageCard
+                message={message}
+                onMessageDelete={handleDeleteMessage}
+              />
             </div>
           ))
         ) : (
